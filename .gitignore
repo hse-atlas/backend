@@ -3,3 +3,5 @@ venv/
 *.env
 *.log
 .vscode/
+app/__pycache__
+app/migration

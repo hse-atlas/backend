@@ -40,3 +40,9 @@ async def add(**values):
                 await session.rollback()
                 raise e
             return new_instance
+
+async def auth_user(email: str, password: str):
+    user = find_one_or_none(email=email)
+    if not user or not VerifyPassword(password, user.password):
+        return None
+    return user

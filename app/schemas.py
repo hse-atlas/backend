@@ -21,3 +21,7 @@ class UserRegisterData(BaseModel):
     email: EmailStr = Field(..., description="email")
     password: str = Field(..., min_length=5, max_length=50, description="Password from 5 to 50 lenght")
     login: str = Field(..., min_length=3, max_length=50, description="login")
+
+class UserLoginData(BaseModel):
+    email: EmailStr = Field(..., description="email")
+    password: str = Field(..., min_length=5, max_length=50, description="Password from 5 to 50 lenght")

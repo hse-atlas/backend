@@ -1,12 +1,16 @@
+import logging
 from datetime import datetime
 from typing import Annotated
+import asyncio
 
 from sqlalchemy import func
+from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase, declared_attr, Mapped, mapped_column
+from app.config import get_pass_db_url, config
 
-from app.config import get_pass_db_url
-
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 DATABASE_URL = get_pass_db_url()
 engine = create_async_engine(DATABASE_URL)
@@ -20,3 +24,15 @@ str_null_true = Annotated[str, mapped_column(nullable=True)]
 
 class Base(AsyncAttrs, DeclarativeBase):
     __abstract__ = True
+
+    created_at: Mapped[created_at]
+    updated_at: Mapped[updated_at]
+
+async def test_db_connection():
+    try:
+        async with async_session_maker() as session:
+            await session.execute(select(1))
+        # logger.info(f"{config.APPNAME} | DB is successfully connected")
+    except Exception as error:
+        logger.error(f"❌ Database cannot connect, startup will be aborted: {error}")
+        exit(1)

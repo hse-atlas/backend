@@ -42,7 +42,7 @@ async def add(**values):
             return new_instance
 
 async def auth_user(email: str, password: str):
-    user = find_one_or_none(email=email)
+    user = await find_one_or_none(email=email)
     if not user or not VerifyPassword(password, user.password):
         return None
     return user

@@ -8,7 +8,7 @@ app = FastAPI()
 
 @app.get("/")
 def home_page():
-    return {"message": "Auth Service Server alive"}
+    return {"message": "AuthService is working"}
 
 app.include_router(auth_router)
 

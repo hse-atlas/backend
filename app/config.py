@@ -22,4 +22,4 @@ def get_pass_db_url():
             f"{config.PASS_DB_HOST}:{config.PASS_DB_PORT}/{config.PASS_DB_NAME}")
 
 def get_auth_data():
-    return {"secret": config.SECRET_KEY, "alg": config.ALGORITHM}
+    return {"secret_key": config.SECRET_KEY, "algorithm": config.ALGORITHM}

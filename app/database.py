@@ -1,13 +1,13 @@
 import logging
 from datetime import datetime
 from typing import Annotated
-import asyncio
 
 from sqlalchemy import func
-from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncAttrs
-from sqlalchemy.orm import DeclarativeBase, declared_attr, Mapped, mapped_column
-from app.config import get_pass_db_url, config
+from sqlalchemy.future import select
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+
+from app.config import get_pass_db_url
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -22,11 +22,13 @@ updated_at = Annotated[datetime, mapped_column(server_default=func.now(), onupda
 str_uniq = Annotated[str, mapped_column(unique=True, nullable=False)]
 str_null_true = Annotated[str, mapped_column(nullable=True)]
 
+
 class Base(AsyncAttrs, DeclarativeBase):
     __abstract__ = True
 
     created_at: Mapped[created_at]
     updated_at: Mapped[updated_at]
+
 
 async def test_db_connection():
     try:

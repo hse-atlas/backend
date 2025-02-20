@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13
+    container_name: postgres_db
+    environment:
+      POSTGRES_DB: Atlas
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Rfdrfp08
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: my_app
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    environment:
+      PASS_DB_HOST: db
+      PASS_DB_PORT: 5432
+      PASS_DB_NAME: Atlas
+      PASS_DB_USER: postgres
+      PASS_DB_PASSWORD: Rfdrfp08
+      SECRET_KEY: "your_super_secret_key"
+      ALGORITHM: HS256
+
+volumes:
+  postgres_data:

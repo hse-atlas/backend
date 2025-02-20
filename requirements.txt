@@ -1,11 +1,9 @@
-fastapi[all]~=0.115.6
+fastapi~=0.115.6
 uvicorn~=0.34.0
-pydantic[email]~=2.9.2
-SQLAlchemy[all]~=2.0.37
-requests
-pytest
-asyncpg
+pydantic~=2.9.2
+SQLAlchemy~=2.0.37
+"pydantic[email]"
 psycopg2-binary
+passlib~=1.7.4
 python-jose>=3.3.0
-bcrypt==4.0.1
-passlib[bcrypt]~=1.7.4
+bcrypt

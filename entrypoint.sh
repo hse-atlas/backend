@@ -12,4 +12,4 @@ python init_db.py
 
 # Запуск приложения (например, через Uvicorn)
 echo "Запуск приложения..."
-exec uvicorn main:app --host 0.0.0.0 --port 8000
+exec uvicorn app.main:application --host 0.0.0.0 --port 8000

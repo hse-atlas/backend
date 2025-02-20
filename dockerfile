@@ -6,22 +6,27 @@ ENV PYTHONUNBUFFERED=1
 # Устанавливаем рабочую директорию
 WORKDIR /app
 
-# Копируем файл зависимостей и устанавливаем их
+# Копируем файл зависимостей
 COPY requirements.txt .
-RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Обновляем apk и устанавливаем netcat для проверки доступности базы данных
-RUN apk update && apk add --no-cache netcat-openbsd
+# Устанавливаем пакеты, необходимые для сборки некоторых зависимостей (например, bcrypt)
+RUN apk update && apk add --no-cache gcc musl-dev python3-dev libffi-dev openssl-dev cargo
 
-# Копируем все файлы проекта в контейнер
+# Обновляем pip и устанавливаем зависимости с увеличенным таймаутом
+RUN pip install --upgrade pip && \
+    pip install --default-timeout=300 -r requirements.txt
+
+# Устанавливаем netcat (в Alpine: netcat-openbsd)
+RUN apk add --no-cache netcat-openbsd
+
+# Копируем весь проект
 COPY . .
 
-# Копируем и даем права на выполнение entrypoint.sh
-COPY entrypoint.sh /app/entrypoint.sh
+# Даем права на выполнение скрипта entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
 # Открываем порт 8000
 EXPOSE 8000
 
-# Запускаем скрипт entrypoint.sh
+# Запускаем entrypoint.sh
 ENTRYPOINT ["/app/entrypoint.sh"]

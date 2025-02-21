@@ -3,20 +3,24 @@ FROM python:3.9-slim
 # Отключаем буферизацию вывода
 ENV PYTHONUNBUFFERED=1
 
-# Устанавливаем рабочую директорию
-WORKDIR /app
-
-# Копируем файл зависимостей
-COPY requirements.txt .
+# Создаем файл /etc/apt/sources.list вручную
+RUN echo "deb http://ftp.ru.debian.org/debian bookworm main" > /etc/apt/sources.list && \
+    echo "deb http://ftp.ru.debian.org/debian bookworm-updates main" >> /etc/apt/sources.list && \
+    echo "deb http://ftp.ru.debian.org/debian-security bookworm-security main" >> /etc/apt/sources.list
 
 # Устанавливаем необходимые системные пакеты для сборки Python-зависимостей
-RUN sed -i 's|http://deb.debian.org/debian|http://ftp.ru.debian.org/debian|g' /etc/apt/sources.list && \
-    apt-get update -o Acquire::http::Timeout=60 && \
+RUN apt-get update -o Acquire::http::Timeout=60 && \
     apt-get install -y --no-install-recommends \
         gcc \
         libffi-dev \
         libssl-dev \
     && rm -rf /var/lib/apt/lists/*
+
+# Устанавливаем рабочую директорию
+WORKDIR /app
+
+# Копируем файл зависимостей
+COPY requirements.txt .
 
 # Обновляем pip
 RUN pip install --upgrade pip

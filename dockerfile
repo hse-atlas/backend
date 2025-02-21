@@ -1,4 +1,4 @@
-FROM python:3.9-alpine
+FROM python:3.9-slim
 
 # Отключаем буферизацию вывода
 ENV PYTHONUNBUFFERED=1
@@ -10,14 +10,49 @@ WORKDIR /app
 COPY requirements.txt .
 
 # Устанавливаем необходимые системные пакеты для сборки Python-зависимостей
-RUN apk update && apk add --no-cache gcc musl-dev python3-dev libffi-dev openssl-dev cargo
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    libffi-dev \
+    libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Обновляем pip и устанавливаем зависимости (увеличенный таймаут)
-RUN pip install --upgrade pip && \
-    pip install --default-timeout=300 -r requirements.txt
+# Обновляем pip
+RUN pip install --upgrade pip
 
-# Устанавливаем netcat (в Alpine: netcat-openbsd)
-RUN apk add --no-cache netcat-openbsd
+# Устанавливаем базовые зависимости (FastAPI и Uvicorn)
+RUN pip install --default-timeout=600 fastapi[all]
+RUN pip install --default-timeout=600 uvicorn~=0.34.0
+
+# Устанавливаем Pydantic с дополнительными зависимостями
+RUN pip install --default-timeout=600 pydantic[email]~=2.9.2
+
+# Устанавливаем SQLAlchemy с дополнительными зависимостями
+RUN pip install --default-timeout=600 SQLAlchemy[all]~=2.0.37
+
+# Устанавливаем requests (HTTP-библиотека)
+RUN pip install --default-timeout=600 requests
+
+# Устанавливаем asyncpg (асинхронный PostgreSQL драйвер)
+RUN pip install --default-timeout=600 asyncpg
+
+# Устанавливаем psycopg2-binary (синхронный PostgreSQL драйвер)
+RUN pip install --default-timeout=600 psycopg2-binary
+
+# Устанавливаем python-jose (JWT-библиотека)
+RUN pip install --default-timeout=600 python-jose>=3.3.0
+
+# Устанавливаем bcrypt (библиотека для хэширования паролей)
+RUN pip install --default-timeout=600 bcrypt==4.0.1
+
+# Устанавливаем passlib с поддержкой bcrypt
+RUN pip install --default-timeout=600 passlib[bcrypt]~=1.7.4
+
+# Устанавливаем pytest (для тестирования, если нужно)
+RUN pip install --default-timeout=600 pytest
+
+# Устанавливаем netcat
+RUN apt-get install -y --no-install-recommends netcat && \
+    rm -rf /var/lib/apt/lists/*
 
 # Копируем весь проект
 COPY . .

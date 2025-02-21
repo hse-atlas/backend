@@ -10,10 +10,12 @@ WORKDIR /app
 COPY requirements.txt .
 
 # Устанавливаем необходимые системные пакеты для сборки Python-зависимостей
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc \
-    libffi-dev \
-    libssl-dev \
+RUN sed -i 's|http://deb.debian.org/debian|http://ftp.ru.debian.org/debian|g' /etc/apt/sources.list && \
+    apt-get update -o Acquire::http::Timeout=60 && \
+    apt-get install -y --no-install-recommends \
+        gcc \
+        libffi-dev \
+        libssl-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Обновляем pip

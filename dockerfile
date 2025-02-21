@@ -9,10 +9,10 @@ WORKDIR /app
 # Копируем файл зависимостей
 COPY requirements.txt .
 
-# Устанавливаем пакеты, необходимые для сборки некоторых зависимостей (например, bcrypt)
+# Устанавливаем необходимые системные пакеты для сборки Python-зависимостей
 RUN apk update && apk add --no-cache gcc musl-dev python3-dev libffi-dev openssl-dev cargo
 
-# Обновляем pip и устанавливаем зависимости с увеличенным таймаутом
+# Обновляем pip и устанавливаем зависимости (увеличенный таймаут)
 RUN pip install --upgrade pip && \
     pip install --default-timeout=300 -r requirements.txt
 

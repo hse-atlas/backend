@@ -28,6 +28,8 @@ services:
       PASS_DB_PASSWORD: Rfdrfp08
       SECRET_KEY: "your_super_secret_key"
       ALGORITHM: HS256
+    env_file:
+      - .env
 
 volumes:
   postgres_data:

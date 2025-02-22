@@ -1,7 +1,7 @@
 #!/bin/sh
 # Ожидание запуска базы данных (проверка, что база доступна)
 echo "Ожидание запуска базы данных..."
-while ! nc -z "$PASS_DB_HOST" "$PASS_DB_PORT"; do
+while ! pg_isready -h "$PASS_DB_HOST" -p "$PASS_DB_PORT" -U "$PASS_DB_USER"; do
   sleep 0.5
 done
 echo "База данных запущена!"

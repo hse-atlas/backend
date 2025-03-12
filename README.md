@@ -31,3 +31,17 @@ git clone https://github.com/hse-atlas/auth-service
 
 3. **Настройте базу данных:**
    - Убедитесь, что база данных доступна и настроена для работы с Auth Service.
+  
+
+
+
+
+
+.env
+PASS_DB_HOST=db
+PASS_DB_PORT=5432
+PASS_DB_NAME=Atlas
+PASS_DB_USER=postgres
+PASS_DB_PASSWORD=Rfdrfp08
+SECRET_KEY=your_super_secret_key
+ALGORITHM=HS256

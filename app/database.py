@@ -1,8 +1,8 @@
 import logging
 from datetime import datetime
-from typing import Annotated
+from typing import Annotated, Dict, Any, Optional
 
-from sqlalchemy import func
+from sqlalchemy import func, JSON
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncAttrs
 from sqlalchemy.future import select
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
@@ -21,6 +21,7 @@ created_at = Annotated[datetime, mapped_column(server_default=func.now())]
 updated_at = Annotated[datetime, mapped_column(server_default=func.now(), onupdate=datetime.now)]
 str_uniq = Annotated[str, mapped_column(unique=True, nullable=False)]
 str_null_true = Annotated[str, mapped_column(nullable=True)]
+json_field = Annotated[Optional[Dict[str, Any]], mapped_column(JSON, nullable=True)]
 
 
 class Base(AsyncAttrs, DeclarativeBase):
@@ -34,7 +35,7 @@ async def test_db_connection():
     try:
         async with async_session_maker() as session:
             await session.execute(select(1))
-        # logger.info(f"{config.APPNAME} | DB is successfully connected")
+        logger.info("Database connection successful")
     except Exception as error:
         logger.error(f"❌ Database cannot connect, startup will be aborted: {error}")
         exit(1)

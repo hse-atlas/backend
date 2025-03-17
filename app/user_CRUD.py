@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.security import get_password_hash, password_meets_requirements
 
 from app.database import async_session_maker
 from app.schemas import UsersBase, ProjectsBase, UserOut, UsersProjectOut, UserUpdate
@@ -60,10 +61,19 @@ async def update_user(user_id: int, user: UserUpdate, session: AsyncSession = De
 
     if user.login is not None:
         db_user.login = user.login
+
     if user.email is not None:
         db_user.email = user.email
+
     if user.password is not None:
-        db_user.password = user.password
+        # Проверка пароля на сложность
+        is_valid, error_message = password_meets_requirements(user.password)
+        if not is_valid:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=error_message
+            )
+        db_user.password = get_password_hash(user.password)
 
     await session.commit()
     await session.refresh(db_user)

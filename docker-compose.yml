@@ -2,34 +2,99 @@ version: '3.8'
 
 services:
   db:
-    image: postgres:13
-    container_name: postgres_db
+    image: postgres:13-alpine
+    container_name: atlas_db
+    restart: always
     environment:
-      POSTGRES_DB: Atlas
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: Rfdrfp08
+      POSTGRES_DB: ${PASS_DB_NAME}
+      POSTGRES_USER: ${PASS_DB_USER}
+      POSTGRES_PASSWORD: ${PASS_DB_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PASS_DB_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - atlas_network
 
-  app:
-    build: .
-    container_name: my_app
+  redis:
+    image: redis:alpine
+    container_name: atlas_redis
+    restart: always
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 5s
+      timeout: 30s
+      retries: 50
+    networks:
+      - atlas_network
+
+  auth_service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: atlas_auth_service
+    restart: always
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     ports:
       - "8000:8000"
     environment:
-      PASS_DB_HOST: db
-      PASS_DB_PORT: 5432
-      PASS_DB_NAME: Atlas
-      PASS_DB_USER: postgres
-      PASS_DB_PASSWORD: Rfdrfp08
-      SECRET_KEY: "your_super_secret_key"
-      ALGORITHM: HS256
-    env_file:
-      - .env
+      - PASS_DB_HOST=${PASS_DB_HOST}
+      - PASS_DB_PORT=${PASS_DB_PORT}
+      - PASS_DB_NAME=${PASS_DB_NAME}
+      - PASS_DB_USER=${PASS_DB_USER}
+      - PASS_DB_PASSWORD=${PASS_DB_PASSWORD}
+      - DATABASE_URL=postgresql+asyncpg://${PASS_DB_USER}:${PASS_DB_PASSWORD}@${PASS_DB_HOST}:${PASS_DB_PORT}/${PASS_DB_NAME}
+      - SECRET_KEY=${SECRET_KEY}
+      - ALGORITHM=${ALGORITHM}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES}
+      - REFRESH_TOKEN_EXPIRE_DAYS=${REFRESH_TOKEN_EXPIRE_DAYS}
+      - PASSWORD_PEPPER=${PASSWORD_PEPPER}
+      - SESSION_SECRET_KEY=${SESSION_SECRET_KEY}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_DB=${REDIS_DB}
+      - CORS_ORIGINS=${CORS_ORIGINS}
+      - OAUTH_GOOGLE_CLIENT_ID=${OAUTH_GOOGLE_CLIENT_ID}
+      - OAUTH_GOOGLE_CLIENT_SECRET=${OAUTH_GOOGLE_CLIENT_SECRET}
+      - OAUTH_GITHUB_CLIENT_ID=${OAUTH_GITHUB_CLIENT_ID}
+      - OAUTH_GITHUB_CLIENT_SECRET=${OAUTH_GITHUB_CLIENT_SECRET}
+      - OAUTH_YANDEX_CLIENT_ID=${OAUTH_YANDEX_CLIENT_ID}
+      - OAUTH_YANDEX_CLIENT_SECRET=${OAUTH_YANDEX_CLIENT_SECRET}
+      - OAUTH_VK_CLIENT_ID=${OAUTH_VK_CLIENT_ID}
+      - OAUTH_VK_CLIENT_SECRET=${OAUTH_VK_CLIENT_SECRET}
+      - BASE_URL=${BASE_URL}
+      - ENVIRONMENT=${ENVIRONMENT}
+      - DEBUG=${DEBUG}
+      - ARGON2_TIME_COST=${ARGON2_TIME_COST}
+      - ARGON2_MEMORY_COST=${ARGON2_MEMORY_COST}
+      - ARGON2_PARALLELISM=${ARGON2_PARALLELISM}
+      - ARGON2_HASH_LEN=${ARGON2_HASH_LEN}
+      - ARGON2_SALT_LEN=${ARGON2_SALT_LEN}
+    volumes:
+      - ./app:/app/app
+      - ./logs:/app/logs
+    networks:
+      - atlas_network
+
+networks:
+  atlas_network:
+    driver: bridge
 
 volumes:
   postgres_data:
+  redis_data:

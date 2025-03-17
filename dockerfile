@@ -1,22 +1,37 @@
 FROM python:3.9-alpine
 
-# Отключаем буферизацию вывода
-ENV PYTHONUNBUFFERED=1
+# Установка системных зависимостей
+RUN apk add --no-cache \
+    build-base \
+    postgresql-client \
+    redis \
+    bash \
+    libpq-dev \
+    linux-headers \
+    gcc \
+    musl-dev
 
-# Устанавливаем рабочую директорию
+# Отключаем буферизацию вывода
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONFAULTHANDLER=1 \
+    PYTHONHASHSEED=random
+
+# Установка рабочей директории
 WORKDIR /app
 
-# Копируем файл зависимостей и устанавливаем их
+# Копируем файлы зависимостей и устанавливаем их
 COPY requirements.txt .
-RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Обновляем apk и устанавливаем netcat (в Alpine он называется netcat-openbsd)
-RUN apk update && apk add --no-cache netcat-openbsd
-
-RUN apk update && apk add --no-cache postgresql-client
+# Устанавливаем зависимости
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
 # Копируем весь проект в рабочую директорию
 COPY . .
+
+# Создаем директорию для логов
+RUN mkdir -p /app/logs
 
 # Даем права на выполнение entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
@@ -24,5 +39,5 @@ RUN chmod +x /app/entrypoint.sh
 # Открываем порт 8000
 EXPOSE 8000
 
-# Задаем скрипт запуска
+# Запускаем приложение через entrypoint.sh
 ENTRYPOINT ["/app/entrypoint.sh"]

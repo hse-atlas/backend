@@ -5,3 +5,14 @@ venv/
 .vscode/
 app/__pycache__
 app/migration
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+.DS_Store
+.idea/
+*.swp
+*.swo
+logs/

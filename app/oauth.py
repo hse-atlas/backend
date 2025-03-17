@@ -282,8 +282,8 @@ async def process_admin_oauth(email: str, name: str, provider: str, provider_use
         await session.commit()
 
     # Создаем JWT токен
-    access_token = create_access_token({"sub": str(admin.id)})
-    refresh_token = create_refresh_token({"sub": str(admin.id)})
+    access_token = await create_access_token({"sub": str(admin.id)})
+    refresh_token = await create_refresh_token({"sub": str(admin.id)})
 
     # Обновляем last_login
     admin.last_login = datetime.now()
@@ -353,8 +353,8 @@ async def process_user_oauth(email: str, name: str, provider: str, provider_user
         await session.commit()
 
     # Создаем JWT токен
-    access_token = create_access_token({"sub": str(user.id)})
-    refresh_token = create_refresh_token({"sub": str(user.id)})
+    access_token = await create_access_token({"sub": str(user.id)})
+    refresh_token = await create_refresh_token({"sub": str(user.id)})
 
     # Обновляем last_login
     from datetime import datetime

@@ -31,7 +31,7 @@ async def get_async_session() -> AsyncSession:
 
 
 # Функция для создания access токена
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+async def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     to_encode = data.copy()
 
     # Добавляем jti (JWT ID) для возможности отзыва токена
@@ -48,7 +48,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
 
 
 # Функция для создания refresh токена
-def create_refresh_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+async def create_refresh_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     to_encode = data.copy()
 
     # Добавляем jti (JWT ID) для возможности отзыва токена
@@ -66,7 +66,7 @@ def create_refresh_token(data: dict, expires_delta: Optional[timedelta] = None) 
     # Сохраняем refresh токен в Redis для проверки валидности
     # и возможности отзыва всех токенов пользователя
     expiry = int(expires_delta.total_seconds()) if expires_delta else REFRESH_TOKEN_EXPIRE_DAYS * 86400
-    redis_client.setex(f"refresh_token:{jti}", expiry, to_encode["sub"])
+    await redis_client.setex(f"refresh_token:{jti}", expiry, to_encode["sub"])
 
     return encoded_jwt
 
@@ -265,8 +265,8 @@ async def auth_middleware(request: Request, db: AsyncSession = Depends(get_async
             await revoke_token(refresh_token)
 
             # Создаем новую пару токенов
-            new_access_token = create_access_token({"sub": user_id})
-            new_refresh_token = create_refresh_token({"sub": user_id})
+            new_access_token = await create_access_token({"sub": user_id})
+            new_refresh_token = await create_refresh_token({"sub": user_id})
 
             # Устанавливаем новые токены в ответе
             # Это нужно будет добавить в middleware
@@ -350,8 +350,8 @@ async def refresh_tokens(refresh_token: str, db: AsyncSession = Depends(get_asyn
         await revoke_token(refresh_token)
 
         # Создаем новую пару токенов
-        access_token = create_access_token({"sub": user_id})
-        new_refresh_token = create_refresh_token({"sub": user_id})
+        access_token = await create_access_token({"sub": user_id})
+        new_refresh_token = await create_refresh_token({"sub": user_id})
 
         return {
             "access_token": access_token,

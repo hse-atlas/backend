@@ -113,8 +113,8 @@ async def user_login(
         )
 
     # Генерация токенов
-    access_token = create_access_token({"sub": str(user.id)})
-    refresh_token = create_refresh_token({"sub": str(user.id)})
+    access_token = await create_access_token({"sub": str(user.id)})
+    refresh_token = await create_refresh_token({"sub": str(user.id)})
 
     # Установка токенов в cookie
     response.set_cookie(

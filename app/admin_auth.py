@@ -88,8 +88,8 @@ async def admin_auth(
         )
 
     # Генерация токенов
-    access_token = create_access_token({"sub": str(admin.id)})
-    refresh_token = create_refresh_token({"sub": str(admin.id)})
+    access_token = await create_access_token({"sub": str(admin.id)})
+    refresh_token = await create_refresh_token({"sub": str(admin.id)})
 
     # Установка токенов в cookie (httponly для безопасности)
     response.set_cookie(

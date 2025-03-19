@@ -91,6 +91,7 @@ class UsersBase(Base):
     email: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     password: Mapped[Optional[str]] = mapped_column(String, nullable=True)  # Nullable для OAuth
     project_id: Mapped[int] = mapped_column(ForeignKey("projects.id"), nullable=False)
+    role: Mapped[str] = mapped_column(String, nullable=False, default="user") #новый столбец роли
     created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now(),
                                                  onupdate=func.now())

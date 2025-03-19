@@ -12,6 +12,7 @@ from app.database import test_db_connection
 from app.project_CRUD import router as project_crud_router
 from app.user_CRUD import router as user_crud_router
 from app.user_auth import router as user_auth_router
+from app.user_roles import router as user_roles_router #роли
 from app.oauth import router as oauth_router
 from app.security import security_config
 from app.jwt_auth import auth_middleware, get_async_session
@@ -127,6 +128,7 @@ application.include_router(user_auth_router, prefix="/api/v1/AuthService")
 application.include_router(project_crud_router, prefix="/projects")
 application.include_router(user_crud_router, prefix="/users")
 application.include_router(oauth_router, prefix="/api/v1/AuthService")
+application.include_router(user_roles_router) #роли
 
 
 # Корневой эндпоинт
